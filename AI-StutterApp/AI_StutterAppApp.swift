@@ -8,10 +8,10 @@
 import SwiftUI
 
 @main
-struct AI_StutterAppApp: App {
+struct YourAppName: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
         }
     }
 }
