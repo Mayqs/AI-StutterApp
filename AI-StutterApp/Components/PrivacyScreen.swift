@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PrivacyScreen: View {
-    @State private var allowVoiceData = false
+    @Binding var allowVoiceData: Bool
     
     var onAccept: () -> Void
     var onRefuse: () -> Void
@@ -40,11 +40,11 @@ struct PrivacyScreen: View {
                     HStack(spacing: 8) {
                         Image("Shield")
                             .resizable()
-                            .frame(width: 20, height: 20)
+                            .frame(width: 25, height: 28)
                         
-                        Text("Privacy Settings")
+                        Text(" Privacy Settings")
                             .foregroundColor(Color("Text"))
-                            .font(.headline)
+                            .font(.title)
                     }
                     
                     Spacer()
@@ -58,13 +58,24 @@ struct PrivacyScreen: View {
                 
                 Spacer()
                 
-                // Privay card
-                VStack(spacing: 20) {
+                // Privacy card
+                VStack(alignment: .leading, spacing: 20) {
                     
-                    Text("We use your audio data to improve stuttering detection.")
-                        .multilineTextAlignment(.center)
+                    Text("Privacy Preferences")
+                        .font(.title3)
+                        .fontWeight(.semibold)
                         .foregroundColor(Color("Text"))
-                        .padding()
+                    
+                    Text("""
+                Allow us to use your voice recordings to improve our AI.
+                
+                Your recordings are private and will never be shared or published.
+
+                This is completely optional and will not affect your ability to use the app.
+                """)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(Color("Text"))
+                    .lineSpacing(4)
                     
                     Divider()
                         .background(Color.white.opacity(0.2))
@@ -78,8 +89,8 @@ struct PrivacyScreen: View {
                         Toggle("", isOn: $allowVoiceData)
                             .labelsHidden()
                     }
-                    .padding()
                 }
+                .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 25)
                         .fill(Color("ButtonColor").opacity(0.25))
@@ -89,10 +100,11 @@ struct PrivacyScreen: View {
                         )
                 )
                 .padding()
+                .offset(y: -70)
                 
                 Spacer()
                 
-                // Conitinue button
+                // Continue button
                 Button(action: {
                     if allowVoiceData {
                         onAccept()
@@ -104,10 +116,17 @@ struct PrivacyScreen: View {
                         .foregroundColor(Color("Text"))
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color("ButtonColor"))
-                        .cornerRadius(22)
+                        .background(
+                            RoundedRectangle(cornerRadius: 22)
+                                .fill(Color("ButtonColor"))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 22)
+                                        .stroke(Color.white.opacity(0.2))
+                                )
+                        )
                         .padding(.horizontal, 40)
                 }
+                .offset(y: -64)
             }
         }
     }

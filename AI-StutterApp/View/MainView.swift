@@ -17,6 +17,9 @@ struct MainView: View {
     @State private var recordingTime: Double = 0
     @State private var recordingTimer: Timer?
     
+    @AppStorage("hasSeenPrivacy") var hasSeenPrivacy = false
+    @AppStorage("allowVoiceData") var allowVoiceData = false
+    
     @State private var screen: ScreenState = .initial
     
     enum ScreenState {
@@ -37,13 +40,9 @@ struct MainView: View {
                     HStack {
                         
                         Button(action: {
-                            if screen == .privacy {
-                                screen = .initial
-                            } else {
-                                screen = .initial
-                                vm.isRecording = false
-                                stopAnimation()
-                            }
+                            screen = .initial
+                            vm.isRecording = false
+                            stopAnimation()
                         }) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
@@ -66,12 +65,15 @@ struct MainView: View {
                 
             case .privacy:
                 PrivacyScreen(
+                    allowVoiceData: $allowVoiceData,
                     onAccept: {
                         vm.acceptPrivacy()
+                        hasSeenPrivacy = true
                         screen = .main
                     },
                     onRefuse: {
                         vm.refusePrivacy()
+                        hasSeenPrivacy = true
                         screen = .main
                     },
                     onBack: {
@@ -87,24 +89,47 @@ struct MainView: View {
     
     // Initial screen
     var initialView: some View {
-        VStack(spacing: 50) {
+        VStack(spacing: 35) {
+            
+            // Shield button
+            HStack {
+                Spacer()
+                
+                Button(action: {
+                    screen = .privacy
+                }) {
+                    Image("Shield")
+                        .resizable()
+                        .frame(width: 25, height: 28)
+                        .opacity(0.8)
+                }
+            }
+            .padding(.horizontal)
             
             Text("Welcome!")
                 .font(.title)
                 .foregroundColor(Color("Text"))
+                .offset(y: -20)
             
             Text("Stuttering Detection")
                 .font(.title)
                 .foregroundColor(Color("Text"))
+                .offset(y: -40)
             
             Image("Wave")
+                .offset(y: -50)
             
             Image("Microphone")
                 .resizable()
                 .frame(width: 180, height: 250)
+                .offset(y: -50)
             
             Button(action: {
-                screen = .privacy
+                if hasSeenPrivacy {
+                    screen = .main  
+                } else {
+                    screen = .privacy
+                }
             }) {
                 Text("Start Recording")
                     .foregroundColor(Color("Text"))
@@ -120,6 +145,7 @@ struct MainView: View {
                     )
                     .padding(.horizontal, 40)
             }
+            .offset(y: -10)
         }
     }
     
@@ -127,28 +153,32 @@ struct MainView: View {
     var mainView: some View {
         VStack(spacing: 8) {
             
-            if vm.isRecording {
-                HStack {
-                    Circle()
-                        .fill(Color.red)
-                        .frame(width: 10, height: 10)
+            VStack {
+                if vm.isRecording {
+                    HStack {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 10, height: 10)
+                        
+                        Text("Recording...")
+                            .foregroundColor(Color("Text"))
+                            .font(.title)
+                    }
                     
-                    Text("Recording...")
+                    Text(String(format: "%05.2f", recordingTime))
+                        .foregroundColor(Color("Text"))
+                        .monospacedDigit()
+                    
+                } else {
+                    Text("Start Recording")
                         .foregroundColor(Color("Text"))
                         .font(.title)
                 }
-                
-                Text(String(format: "%05.2f", recordingTime))
-                    .foregroundColor(Color("Text"))
-                    .monospacedDigit()
-            } else {
-                Text("Start Recording")
-                    .foregroundColor(Color("Text"))
-                    .font(.title)
             }
+            .frame(height: 80)
+            .offset(y: -60)
             
             ZStack {
-                
                 Image("Ellipse1")
                     .resizable()
                     .frame(width: 220, height: 220)
@@ -165,9 +195,13 @@ struct MainView: View {
                     .opacity(0.3 + 0.7 * smoothPulse(offset: 0.0))
                 
                 Button(action: {
-                    vm.startRecording()
-                    startRecordingTimer()
-                    startSmoothAnimation()
+                    if vm.isRecording {
+                        stopRecording()
+                    } else {
+                        vm.startRecording()
+                        startRecordingTimer()
+                        startSmoothAnimation()
+                    }
                 }) {
                     Image("Microphone")
                         .resizable()
@@ -177,7 +211,7 @@ struct MainView: View {
         }
     }
     
-    // Mic animation
+    // Animation
     func smoothPulse(offset: Double) -> Double {
         guard vm.isRecording else { return 0 }
         
@@ -204,13 +238,12 @@ struct MainView: View {
         phase = 0
     }
     
-    // Mic timer
+    // Timer
     func startRecordingTimer() {
         recordingTime = 0
         recordingTimer?.invalidate()
         
         recordingTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
-            
             recordingTime += 0.01
             
             if recordingTime >= 15 {
@@ -229,7 +262,7 @@ struct MainView: View {
         recordingTime = 0
     }
 }
-        
-    #Preview {
-        MainView()
-    }
+
+#Preview {
+    MainView()
+}
