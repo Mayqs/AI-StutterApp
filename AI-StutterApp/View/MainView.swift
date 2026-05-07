@@ -40,18 +40,19 @@ struct MainView: View {
                 VStack {
                     HStack {
                         
+                        Spacer()
+                        
                         Button(action: {
                             screen = .initial
                             vm.isRecording = false
                             stopAnimation()
                         }) {
-                            Image(systemName: "chevron.left")
+                            Image(systemName: "chevron.right")
                                 .foregroundColor(.white)
                                 .font(.title2)
                         }
-                        
-                        Spacer()
                     }
+                    .padding()
                     .padding()
                     
                     Spacer()
@@ -97,7 +98,6 @@ struct MainView: View {
             
             // Shield button
             HStack {
-                Spacer()
                 
                 Button(action: {
                     screen = .privacy
@@ -107,16 +107,19 @@ struct MainView: View {
                         .frame(width: 25, height: 28)
                         .opacity(0.8)
                 }
+                
+                Spacer()
+            
             }
             .padding(.horizontal)
             
-            Text("Welcome To Bayan!")
+            Text("مرحبًا بك في بيان!")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundColor(Color("Text"))
                 .offset(y: -20)
             
-            Text("AI-Powered Stuttering Detection App")
+            Text("تطبيق كشف التأتأة بالذكاء الاصطناعي")
                 .font(.subheadline)
                 .foregroundColor(Color("Text"))
                 .offset(y: -40)
@@ -136,7 +139,7 @@ struct MainView: View {
                     screen = .privacy
                 }
             }) {
-                Text("Start Recording")
+                Text("ابدأ التسجيل")
                     .foregroundColor(Color("Text"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -160,14 +163,15 @@ struct MainView: View {
             
             VStack {
                 if vm.isRecording {
-                    HStack {
+                    HStack(spacing: 8) {
+                        
+                        Text("جارٍ التسجيل...")
+                            .foregroundColor(Color("Text"))
+                            .font(.title)
+                        
                         Circle()
                             .fill(Color.red)
                             .frame(width: 10, height: 10)
-                        
-                        Text("Recording...")
-                            .foregroundColor(Color("Text"))
-                            .font(.title)
                     }
                     
                     Text(String(format: "%05.2f", recordingTime))
@@ -175,7 +179,7 @@ struct MainView: View {
                         .monospacedDigit()
                     
                 } else {
-                    Text("Start Recording")
+                    Text("ابدأ التسجيل")
                         .foregroundColor(Color("Text"))
                         .font(.title)
                 }
@@ -223,43 +227,69 @@ struct MainView: View {
             Spacer()
             
             // Title
-            Text("Speech Analysis Result")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(Color("Text"))
+            HStack {
+                
+                Spacer()
+                
+                Text("نتيجة تحليل الكلام")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color("Text"))
+            }
+            .padding(.horizontal, 28)
             
             // Card
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(spacing: 22) {
                 
-                Text("""
-                The analysis detected patterns associated with:
-                
-                • Prolongation  
-                • Sound Repetition  
-                • Word Repetition  
-                • Block  
-                • Interjection
-                """)
-                .foregroundColor(Color("Text"))
-                .lineSpacing(4)
+                // Detection Section
+                if vm.detectedLabels.isEmpty {
+
+                    Text("لم يتم اكتشاف أي أنماط")
+                        .foregroundColor(Color("Text"))
+                        .fontWeight(.semibold)
+
+                } else {
+
+                    VStack(spacing: 12) {
+                        ForEach(vm.detectedLabels, id: \.self) { label in
+                            bulletRow(arabicLabel(label))
+                        }
+                    }
+                }
                 
                 Divider()
                     .background(Color.white.opacity(0.2))
                 
-                Text("Prediction Confidence: 87%")
+                // Confidence
+                HStack {
+                    Spacer()
+                    
+                    if !vm.detectedLabels.isEmpty {
+                        Text("نسبة الثقة بالتوقع: \(Int(vm.confidence * 100))%")
+                            .foregroundColor(Color("Text"))
+                            .fontWeight(.medium)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                
+                // Disclaimer
+                HStack {
+                    Spacer()
+                    
+                    Text("""
+    تم إنشاء هذه النتيجة بواسطة نموذج ذكاء اصطناعي، وهي ليست تشخيصًا طبيًا.
+
+    إذا كانت لديك مخاوف بشأن أنماط الكلام، يُنصح بمراجعة أخصائي نطق ولغة.
+    """)
                     .foregroundColor(Color("Text"))
-                    .fontWeight(.medium)
-                
-                Text("""
-                This result is generated by an AI model and is not a medical diagnosis. 
-                
-                If you have concerns about speech patterns, it is recommended to consult a qualified speech-language professional.
-                """)
-                .foregroundColor(Color("Text"))
-                .font(.footnote)
-                .lineSpacing(4)
+                    .font(.footnote)
+                    .lineSpacing(7)
+                    .multilineTextAlignment(.trailing)
+                }
+                .frame(maxWidth: .infinity)
             }
-            .padding()
+            .padding(24)
+            .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 25)
                     .fill(Color("ButtonColor").opacity(0.25))
@@ -268,15 +298,15 @@ struct MainView: View {
                             .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
             )
-            .padding()
+            .padding(.horizontal, 22)
             
             Spacer()
             
-            // Done button
+            // Done Button
             Button(action: {
                 screen = .initial
             }) {
-                Text("Done")
+                Text("تم")
                     .foregroundColor(Color("Text"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -293,6 +323,39 @@ struct MainView: View {
             
             Spacer()
         }
+    }
+    
+    //Label Mapper
+    func arabicLabel(_ label: String) -> String {
+        switch label {
+        case "Prolongation":
+            return "الإطالة"
+        case "SoundRep":
+            return "تكرار الأصوات"
+        case "WordRep":
+            return "تكرار الكلمات"
+        case "Block":
+            return "التوقف المفاجئ"
+        case "Interjection":
+            return "الكلمات الاعتراضية"
+        default:
+            return label
+        }
+    }
+
+    // Bullet Row
+    func bulletRow(_ text: String) -> some View {
+        HStack(spacing: 6) {
+            
+            Spacer()
+            
+            Text(text)
+                .foregroundColor(Color("Text"))
+            
+            Text("•")
+                .foregroundColor(Color("Text"))
+        }
+        .frame(maxWidth: .infinity)
     }
     
     // Animation
@@ -337,15 +400,26 @@ struct MainView: View {
     }
     
     func stopRecording() {
-        vm.isRecording = false
-        
+
+        vm.stopRecording()
+
+        print(vm.audioURL)
+
         recordingTimer?.invalidate()
         recordingTimer = nil
-        
+
         stopAnimation()
         recordingTime = 0
-        
-        screen = .result
+
+        if let url = vm.audioURL {
+
+            vm.processAudio(fileURL: url) {
+                screen = .result
+            }
+
+        } else {
+            screen = .result
+        }
     }
 }
 

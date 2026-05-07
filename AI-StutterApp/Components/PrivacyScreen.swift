@@ -22,72 +22,73 @@ struct PrivacyScreen: View {
             
             VStack(spacing: 30) {
                 
-                // Top bar
                 HStack {
+                    
+                    Spacer()
                     
                     // Back button
                     Button(action: {
                         onBack()
                     }) {
-                        Image(systemName: "chevron.left")
+                        Image(systemName: "chevron.right")
                             .foregroundColor(.white)
                             .font(.title2)
                     }
-                    
-                    Spacer()
-                    
-                    // Center text
-                    HStack(spacing: 8) {
-                        Image("Shield")
-                            .resizable()
-                            .frame(width: 25, height: 28)
-                        
-                        Text(" Privacy Settings")
-                            .foregroundColor(Color("Text"))
-                            .font(.title)
-                    }
-                    
-                    Spacer()
-                    
-                    // Keep title in center
-                    Color.clear
-                        .frame(width: 24, height: 24)
                 }
+                .padding(.trailing, 16)
+                .overlay(
+                    HStack {
+                        
+                        // Center title
+                        HStack(spacing: 8) {
+                            
+                            Text("إعدادات الخصوصية")
+                                .foregroundColor(Color("Text"))
+                                .font(.title)
+                            
+                            Image("Shield")
+                                .resizable()
+                                .frame(width: 25, height: 28)
+                        }
+                    }
+                )
                 .padding(.horizontal)
-                .padding(.top, 10)                .padding()
+                .padding(.top, 32)
                 
-                Spacer()
                 
                 // Privacy card
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .trailing, spacing: 20) {
                     
-                    Text("Privacy Preferences")
+                    Text("إعدادات الخصوصية")
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("Text"))
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     
                     Text("""
-                Allow us to use your voice recordings to improve our AI.
-                
-                Your recordings are private and will never be shared or published.
+                    اسمح لنا باستخدام تسجيلاتك الصوتية لتحسين الذكاء الاصطناعي.
 
-                This is completely optional and will not affect your ability to use the app.
-                """)
-                    .multilineTextAlignment(.leading)
+                    تسجيلاتك خاصة ولن يتم مشاركتها أو نشرها أبدًا.
+
+                    هذا الخيار اختياري بالكامل ولن يؤثر على استخدامك للتطبيق.
+                    """)
+                    .multilineTextAlignment(.trailing)
                     .foregroundColor(Color("Text"))
                     .lineSpacing(4)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                     
                     Divider()
                         .background(Color.white.opacity(0.2))
                     
                     HStack {
-                        Text("Allow voice data usage")
-                            .foregroundColor(Color("Text"))
-                        
-                        Spacer()
                         
                         Toggle("", isOn: $allowVoiceData)
                             .labelsHidden()
+                        
+                        Spacer()
+                        
+                        Text("السماح باستخدام البيانات الصوتية")
+                            .foregroundColor(Color("Text"))
                     }
                 }
                 .padding()
@@ -100,7 +101,7 @@ struct PrivacyScreen: View {
                         )
                 )
                 .padding()
-                .offset(y: -70)
+                .offset(y: 30)
                 
                 Spacer()
                 
@@ -112,7 +113,7 @@ struct PrivacyScreen: View {
                         onRefuse()
                     }
                 }) {
-                    Text("Continue")
+                    Text("متابعة")
                         .foregroundColor(Color("Text"))
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
