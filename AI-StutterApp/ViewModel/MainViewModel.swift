@@ -62,9 +62,12 @@ class MainViewModel: ObservableObject {
         showPrivacy = false
     }
     
-    func processAudio(fileURL: URL, onFinish: @escaping () -> Void) {
+    func processAudio(fileURL: URL, allowVoiceData: Bool, onFinish: @escaping () -> Void) {
         
-        APIService.shared.sendAudio(fileURL: fileURL) { result in
+        APIService.shared.sendAudio(
+            fileURL: fileURL,
+            allowVoiceData: allowVoiceData
+        ) { result in
             
             DispatchQueue.main.async {
                 

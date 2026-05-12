@@ -413,7 +413,10 @@ struct MainView: View {
 
         if let url = vm.audioURL {
 
-            vm.processAudio(fileURL: url) {
+            vm.processAudio(
+                fileURL: url,
+                allowVoiceData: allowVoiceData
+            ) {
                 screen = .result
             }
 
